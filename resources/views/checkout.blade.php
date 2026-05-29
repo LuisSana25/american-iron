@@ -37,25 +37,18 @@
                         </ul>
                     </div>
 
-                    <!-- 💳 WIDGET REAL DE WOMPI (Limpio de formularios anidados) -->
-            
-                    <div class="w-full text-center wompi-container" x-ignore>
-                        <form id="form-wompi-{{ $plan->id }}" action="{{ route('checkout.success') }}" method="GET">
-                            
-                            <!-- 🔍 Radar de carga: Si este texto desaparece pero no hay botón, Wompi tiene un error de datos -->
-                            <div class="text-xs text-brand-neon mb-2 animate-pulse">Conectando con Wompi...</div>
-                            
-                            <script 
-                                src="https://wompisv.s3.amazonaws.com/widget/wompi.js"
-                                data-wompi-appid="{{ config('services.wompi.app_id') }}"
-                                data-wompi-amount="{{ number_format($plan->price, 2, '.', '') }}"
-                                data-wompi-currency="USD"
-                                data-wompi-idtransaccion="{{ 'IRON-' . auth()->id() . '-' . $plan->id . '-' . time() }}"
-                                data-wompi-nombre="{{ $plan->name }}"
-                                data-wompi-config-color="#b3e600" 
-                                data-wompi-urlredireccion="{{ route('checkout.success', ['plan_id' => $plan->id]) }}">
-                            </script>
-                        </form>
+                    <div class="w-full text-center" x-ignore>
+                        <div class="wompi-placeholder" 
+                             data-appid="{{ config('services.wompi.app_id') }}"
+                             data-amount="{{ number_format($plan->price, 2, '.', '') }}"
+                             data-idtransaccion="{{ 'IRON-' . auth()->id() . '-' . $plan->id . '-' . time() }}"
+                             data-nombre="{{ $plan->name }}"
+                             data-url="{{ route('checkout.success', ['plan_id' => $plan->id]) }}">
+                             
+                             <div class="wompi-status text-xs text-brand-neon/60 font-medium tracking-wide py-3 animate-pulse">
+                                Preparando pasarela segura...
+                             </div>
+                        </div>
                     </div>
 
                 </div>
@@ -69,4 +62,55 @@
         </div>
 
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const placeholders = document.querySelectorAll('.wompi-placeholder');
+            
+            function inicializarWompiSecuencial(index) {
+                // Si ya procesamos todos los planes, terminamos con éxito
+                if (index >= placeholders.length) return;
+                
+                const container = placeholders[index];
+                const statusElement = container.querySelector('.wompi-status');
+                
+                // 1. Crear el formulario dinámico que exige Wompi
+                const form = document.createElement('form');
+                form.action = container.getAttribute('data-url');
+                form.method = 'GET';
+                
+                // 2. Construir la etiqueta script con sus parámetros oficiales
+                const script = document.createElement('script');
+                script.src = "https://wompisv.s3.amazonaws.com/widget/wompi.js";
+                script.async = false; // Evita que se ejecuten desordenados en el DOM
+                
+                script.setAttribute('data-wompi-appid', container.getAttribute('data-appid'));
+                script.setAttribute('data-wompi-amount', container.getAttribute('data-amount'));
+                script.setAttribute('data-wompi-currency', 'USD');
+                script.setAttribute('data-wompi-idtransaccion', container.getAttribute('data-idtransaccion'));
+                script.setAttribute('data-wompi-nombre', container.getAttribute('data-nombre'));
+                script.setAttribute('data-wompi-config-color', '#b3e600'); // Tu verde neón institucional
+                script.setAttribute('data-wompi-urlredireccion', container.getAttribute('data-url'));
+                
+                // 3. Cuando este script termine de cargar e inyectar su respectivo botón...
+                script.onload = function() {
+                    if (statusElement) statusElement.remove(); // Quitamos el texto de carga de esta tarjeta
+                    
+                    // Esperamos 150ms para darle un respiro a la RAM y disparamos el siguiente plan
+                    setTimeout(() => {
+                        inicializarWompiSecuencial(index + 1);
+                    }, 150);
+                };
+                
+                // 4. Inyectar todo al DOM
+                form.appendChild(script);
+                container.appendChild(form);
+            }
+            
+            // Arrancar el proceso con el primer plan de la grilla
+            if (placeholders.length > 0) {
+                inicializarWompiSecuencial(0);
+            }
+        });
+    </script>
 </x-app-layout>
