@@ -29,8 +29,8 @@
                         data-wompi-appid="{{ config('services.wompi.app_id') }}"
                         data-wompi-amount="{{ number_format($plan->price, 2, '.', '') }}"
                         data-wompi-currency="USD"
-                        data-wompi-idtransaccion="{{ 'IRON-' . auth()->id() . '-' . $plan->id . '-' . time() }}"
-                        data-wompi-nombre="{{ $plan->name }}"
+                        data-wompi-idtransaccion="IRON-PLAN{{ $plan->id }}-{{ time() }}"
+                        data-wompi-nombre="{{ ucwords(\Illuminate\Support\Str::slug($plan->name, ' ')) }}"
                         data-wompi-config-color="#b3e600" 
                         data-wompi-urlredireccion="{{ route('checkout.success', ['plan_id' => $plan->id]) }}">
                     </script>
@@ -38,7 +38,8 @@
             </div>
             
             <p class="text-center text-xs text-gray-600 mt-6">
-                🔒 Pagos procesados de forma segura mediante la pasarela encriptada de Wompi El Salvador.
+                🔒 Pagos procesados de forma segura mediante la pasarela encriptada de Wompi El Salvador.<br>
+                <span class="text-neutral-800">App ID: {{ substr(config('services.wompi.app_id'), 0, 8) }}********</span>
             </p>
         </div>
     </div>
