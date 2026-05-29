@@ -38,17 +38,24 @@
                     </div>
 
                     <!-- 💳 WIDGET REAL DE WOMPI (Limpio de formularios anidados) -->
+            
                     <div class="w-full text-center wompi-container" x-ignore>
-                        <script 
-                            src="https://wompisv.s3.amazonaws.com/widget/wompi.js"
-                            data-wompi-appid="{{ config('services.wompi.app_id') }}"
-                            data-wompi-amount="{{ number_format($plan->price, 2, '.', '') }}"
-                            data-wompi-currency="USD"
-                            data-wompi-idtransaccion="{{ 'IRON-' . auth()->id() . '-' . $plan->id . '-' . time() }}"
-                            data-wompi-nombre="{{ $plan->name }}"
-                            data-wompi-config-color="#b3e600" 
-                            data-wompi-urlredireccion="{{ route('checkout.success', ['plan_id' => $plan->id]) }}">
-                        </script>
+                        <form id="form-wompi-{{ $plan->id }}" action="{{ route('checkout.success') }}" method="GET">
+                            
+                            <!-- 🔍 Radar de carga: Si este texto desaparece pero no hay botón, Wompi tiene un error de datos -->
+                            <div class="text-xs text-brand-neon mb-2 animate-pulse">Conectando con Wompi...</div>
+                            
+                            <script 
+                                src="https://wompisv.s3.amazonaws.com/widget/wompi.js"
+                                data-wompi-appid="{{ config('services.wompi.app_id') }}"
+                                data-wompi-amount="{{ number_format($plan->price, 2, '.', '') }}"
+                                data-wompi-currency="USD"
+                                data-wompi-idtransaccion="{{ 'IRON-' . auth()->id() . '-' . $plan->id . '-' . time() }}"
+                                data-wompi-nombre="{{ $plan->name }}"
+                                data-wompi-config-color="#b3e600" 
+                                data-wompi-urlredireccion="{{ route('checkout.success', ['plan_id' => $plan->id]) }}">
+                            </script>
+                        </form>
                     </div>
 
                 </div>
