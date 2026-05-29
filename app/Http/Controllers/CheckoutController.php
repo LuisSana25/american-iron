@@ -29,6 +29,9 @@ class CheckoutController extends Controller
      */
     public function success(Request $request)
     {
+
+        dd($request->all());
+
         $user = Auth::user();
         
         // 1. Obtener identificadores nativos de la URL
