@@ -4,7 +4,7 @@
         <!-- Encabezado -->
         <div class="mb-10 text-center max-w-2xl mx-auto">
             <h1 class="text-3xl font-black text-white uppercase tracking-tight mb-2">Activa tu Membresía</h1>
-            <p class="text-gray-400 text-sm">Selecciona tu plan de entrenamiento. Al estar en entorno de desarrollo local, procesaremos una simulación de pago enlazada a tu controlador.</p>
+            <p class="text-gray-400 text-sm">Selecciona tu plan de entrenamiento. Los pagos son procesados de forma segura mediante la pasarela encriptada y certificada de Wompi El Salvador.</p>
         </div>
 
         <!-- Grid de Planes Dinámicos (Traídos desde MariaDB) -->
@@ -39,13 +39,20 @@
                         </ul>
                     </div>
 
-                    <!-- BOTÓN DE ENTORNO LOCAL (Sandbox de Alta Fidelidad) -->
-                    <div class="w-full">
-                        <!-- Redirige simulando las variables exactas que inyecta Wompi (ID de transacción aleatorio) -->
-                        <a href="{{ route('checkout.success') }}?plan_id={{ $plan->id }}&idTransaccion=wmp_test_{{ Str::random(10) }}" 
-                           class="block w-full text-center bg-brand-neon hover:bg-[#b3e600] text-black font-black text-xs uppercase tracking-wider py-3.5 rounded-xl transition duration-200">
-                            Pagar ${{ number_format($plan->price, 2) }} (Simular Wompi SV)
-                        </a>
+                    <!-- 💳 WIDGET REAL DE WOMPI -->
+                    <div class="w-full text-center wompi-container">
+                        <form action="{{ route('checkout.success') }}" method="GET">
+                            <script 
+                                src="https://wompisv.s3.amazonaws.com/widget/wompi.js"
+                                data-wompi-appid="{{ env('WOMPI_APP_ID') }}"
+                                data-wompi-amount="{{ number_format($plan->price, 2, '.', '') }}"
+                                data-wompi-currency="USD"
+                                data-wompi-idtransaccion="{{ 'IRON-' . auth()->id() . '-' . $plan->id . '-' . time() }}"
+                                data-wompi-nombreee="{{ $plan->name }}"
+                                data-wompi-config-color="#b3e600" 
+                                data-wompi-urlredireccion="{{ route('checkout.success', ['plan_id' => $plan->id]) }}">
+                            </script>
+                        </form>
                     </div>
 
                 </div>
@@ -55,7 +62,7 @@
         <!-- Banner de Información Técnica -->
         <div class="mt-12 bg-[#141414] border border-neutral-900 rounded-xl p-4 max-w-xl mx-auto text-center">
             <p class="text-xs text-gray-500">
-                <strong>Modo Sandbox Activo:</strong> Utilizando App ID: <code class="text-purple-400 font-mono">{{ env('WOMPI_APP_ID') }}</code>. Cuando el proyecto se suba a producción con HTTPS, reemplazaremos este botón por el script asíncrono del Widget de Wompi.
+                🔒 Conexión Segura HTTPS activa. App ID cargado desde entorno: <code class="text-brand-neon font-mono">{{ substr(env('WOMPI_APP_ID'), 0, 8) }}********</code>
             </p>
         </div>
 
