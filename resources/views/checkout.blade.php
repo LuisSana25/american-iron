@@ -37,18 +37,12 @@
                         </ul>
                     </div>
 
-                    <div class="w-full text-center" x-ignore>
-                        <div class="wompi-placeholder" 
-                             data-appid="{{ config('services.wompi.app_id') }}"
-                             data-amount="{{ number_format($plan->price, 2, '.', '') }}"
-                             data-idtransaccion="{{ 'IRON-' . auth()->id() . '-' . $plan->id . '-' . time() }}"
-                             data-nombre="{{ $plan->name }}"
-                             data-url="{{ route('checkout.success', ['plan_id' => $plan->id]) }}">
-                             
-                             <div class="wompi-status text-xs text-brand-neon/60 font-medium tracking-wide py-3 animate-pulse">
-                                Preparando pasarela segura...
-                             </div>
-                        </div>
+                    <!-- Botón de Selección -->
+                    <div class="mt-8">
+                        <a href="{{ route('checkout.pay', $plan->id) }}" 
+                           class="block w-full text-center bg-brand-neon text-black font-black uppercase tracking-widest py-3 rounded-xl hover:bg-white transition-all duration-300">
+                            Seleccionar Plan
+                        </a>
                     </div>
 
                 </div>
@@ -63,54 +57,5 @@
 
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const placeholders = document.querySelectorAll('.wompi-placeholder');
-            
-            function inicializarWompiSecuencial(index) {
-                // Si ya procesamos todos los planes, terminamos con éxito
-                if (index >= placeholders.length) return;
-                
-                const container = placeholders[index];
-                const statusElement = container.querySelector('.wompi-status');
-                
-                // 1. Crear el formulario dinámico que exige Wompi
-                const form = document.createElement('form');
-                form.action = container.getAttribute('data-url');
-                form.method = 'GET';
-                
-                // 2. Construir la etiqueta script con sus parámetros oficiales
-                const script = document.createElement('script');
-                script.src = "https://wompisv.s3.amazonaws.com/widget/wompi.js";
-                script.async = false; // Evita que se ejecuten desordenados en el DOM
-                
-                script.setAttribute('data-wompi-appid', container.getAttribute('data-appid'));
-                script.setAttribute('data-wompi-amount', container.getAttribute('data-amount'));
-                script.setAttribute('data-wompi-currency', 'USD');
-                script.setAttribute('data-wompi-idtransaccion', container.getAttribute('data-idtransaccion'));
-                script.setAttribute('data-wompi-nombre', container.getAttribute('data-nombre'));
-                script.setAttribute('data-wompi-config-color', '#b3e600'); // Tu verde neón institucional
-                script.setAttribute('data-wompi-urlredireccion', container.getAttribute('data-url'));
-                
-                // 3. Cuando este script termine de cargar e inyectar su respectivo botón...
-                script.onload = function() {
-                    if (statusElement) statusElement.remove(); // Quitamos el texto de carga de esta tarjeta
-                    
-                    // Esperamos 150ms para darle un respiro a la RAM y disparamos el siguiente plan
-                    setTimeout(() => {
-                        inicializarWompiSecuencial(index + 1);
-                    }, 150);
-                };
-                
-                // 4. Inyectar todo al DOM
-                form.appendChild(script);
-                container.appendChild(form);
-            }
-            
-            // Arrancar el proceso con el primer plan de la grilla
-            if (placeholders.length > 0) {
-                inicializarWompiSecuencial(0);
-            }
-        });
-    </script>
+    
 </x-app-layout>

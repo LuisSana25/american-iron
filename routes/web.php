@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     // --- CONEXIÓN REAL DE LA PASARELA WOMPI ---
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::get('/checkout/{id}/pay', [\App\Http\Controllers\CheckoutController::class, 'pay'])->name('checkout.pay');
 });
 
 // Grupo de Rutas de UI para la Administración

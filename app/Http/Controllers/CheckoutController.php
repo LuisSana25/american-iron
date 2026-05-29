@@ -89,4 +89,11 @@ class CheckoutController extends Controller
         // 6. Redirigir al panel con un mensaje de éxito rotundo
         return redirect()->route('dashboard')->with('success', '¡Excelente! Tu pago para el plan ' . $plan->name . ' fue procesado correctamente. Tu acceso en American Iron ya está activo.');
     }
+
+    public function pay($id)
+    {
+        $plan = \App\Models\Plan::findOrFail($id);
+        return view('checkout-pay', compact('plan'));
+    }
+
 }
