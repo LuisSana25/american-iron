@@ -40,7 +40,7 @@
                     </div>
 
                     <!-- 💳 WIDGET REAL DE WOMPI -->
-                    <div class="w-full text-center wompi-container">
+                    <div class="w-full text-center wompi-container" x-ignore>
                         <form action="{{ route('checkout.success') }}" method="GET">
                             <script 
                                 src="https://wompisv.s3.amazonaws.com/widget/wompi.js"
