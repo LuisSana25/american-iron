@@ -24,7 +24,7 @@
             @php
                 // Mapeo dinámico: Conectamos el ID del Plan de tu BD con el Enlace de Wompi
                 $wompiUrl = '';
-                if($plan->id == 1) $wompiUrl = 'https://s.wompi.sv/1580958VW_';
+                if($plan->id == 1) $wompiUrl = 'https://s.wompi.sv/1580990mpf';
                 if($plan->id == 2) $wompiUrl = 'https://s.wompi.sv/1580967JmX';  
                 if($plan->id == 3) $wompiUrl = 'https://s.wompi.sv/1580969zK5';   
             @endphp
