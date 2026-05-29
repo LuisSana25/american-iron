@@ -62,7 +62,7 @@
         <!-- Banner de Información Técnica -->
         <div class="mt-12 bg-[#141414] border border-neutral-900 rounded-xl p-4 max-w-xl mx-auto text-center">
             <p class="text-xs text-gray-500">
-                🔒 Conexión Segura HTTPS activa. App ID cargado desde entorno: <code class="text-brand-neon font-mono">{{ substr(env('WOMPI_APP_ID'), 0, 8) }}********</code>
+                🔒 Conexión Segura HTTPS activa. App ID cargado desde entorno: <code class="text-brand-neon font-mono">{{ substr(config('WOMPI_APP_ID'), 0, 8) }}********</code>
             </p>
         </div>
 
