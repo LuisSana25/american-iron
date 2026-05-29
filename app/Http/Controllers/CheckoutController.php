@@ -41,9 +41,9 @@ class CheckoutController extends Controller
         }
 
         // 2. EXTRA PROTECCIÓN: Consultar el estado real directo a la API de Wompi
-        $apiUrl = env('WOMPI_API_URL', 'https://api.wompi.sv');
-        $accessToken = env('WOMPI_ACCESS_TOKEN');
-
+        
+        $apiUrl = config('services.wompi.api_url');
+        $accessToken = config('services.wompi.access_token');
         $response = Http::withToken($accessToken)->get("{$apiUrl}/v1/transacciones/{$wompiTxId}");
 
         // Si la API falla o el estado no es estrictamente 'APROBADA', rechazamos la operación

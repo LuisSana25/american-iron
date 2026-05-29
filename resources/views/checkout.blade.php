@@ -44,7 +44,7 @@
                         <form action="{{ route('checkout.success') }}" method="GET">
                             <script 
                                 src="https://wompisv.s3.amazonaws.com/widget/wompi.js"
-                                data-wompi-appid="{{ env('WOMPI_APP_ID') }}"
+                                data-wompi-appid="{{ config('services.wompi.app_id') }}"
                                 data-wompi-amount="{{ number_format($plan->price, 2, '.', '') }}"
                                 data-wompi-currency="USD"
                                 data-wompi-idtransaccion="{{ 'IRON-' . auth()->id() . '-' . $plan->id . '-' . time() }}"

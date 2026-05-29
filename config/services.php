@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    // Al final de config/services.php
+    'wompi' => [
+        'app_id'       => env('WOMPI_APP_ID'),
+        'api_url'      => env('WOMPI_API_URL', 'https://api.wompi.sv'),
+        'access_token' => env('WOMPI_ACCESS_TOKEN'),
+    ],
+
+
 ];
