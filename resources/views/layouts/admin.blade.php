@@ -8,24 +8,38 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased bg-[#0f0f0f] text-white">
-        <div class="flex h-screen w-full overflow-hidden">
+    <body class="font-sans antialiased bg-[#0f0f0f] text-white" x-data="{ openSidebar: false }">
+        <div class="flex h-screen w-full overflow-hidden relative">
             
-            <aside class="w-64 bg-[#141414] border-r border-neutral-900 flex flex-col justify-between p-4 shrink-0 h-full">
+            <!-- 📱 CAPA OSCURA DE FONDO (Sólo visible en móviles al abrir la barra lateral) -->
+            <div x-show="openSidebar" 
+                 @click="openSidebar = false" 
+                 x-transition:opacity
+                 class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden" 
+                 x-cloak>
+            </div>
+
+            <!-- aside BARRA LATERAL (Responsiva: Flotante con transiciones en móviles, fija en escritorio) -->
+            <aside class="fixed inset-y-0 left-0 z-40 w-64 bg-[#141414] border-r border-neutral-900 flex flex-col justify-between p-4 shrink-0 h-full transform -translate-x-full transition-transform duration-300 ease-in-out md:static md:translate-x-0"
+                   :class="openSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'">
                 <div>
-                    <div class="mb-8 px-2">
+                    <div class="mb-8 px-2 flex items-center justify-between">
                         <div class="flex items-center gap-2 text-brand-neon font-black tracking-wider text-md uppercase">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                             Iron Admin
                         </div>
-                        <span class="text-[10px] text-gray-500 block pl-7 -mt-1">Gestión Central • Santa Ana</span>
+                        <!-- Botón para cerrar menú móvil -->
+                        <button @click="openSidebar = false" class="text-gray-400 hover:text-white md:hidden focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                     </div>
+                    <span class="text-[10px] text-gray-500 block pl-7 -mt-14 mb-8 md:block">Gestión Central • Santa Ana</span>
 
                     <div>
                         <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider block px-2 mb-2">Administración</span>
                         <nav class="space-y-1">
                             <a href="/admin" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->is('admin') ? 'bg-[#1e1e1e] text-brand-neon border-l-2 border-brand-neon' : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition' }}">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 01-2 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                                 Vista General
                             </a>
                             <a href="/admin/members" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->is('admin/members*') ? 'bg-[#1e1e1e] text-brand-neon border-l-2 border-brand-neon' : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition' }}">
@@ -46,7 +60,7 @@
 
                 <div class="border-t border-neutral-900 pt-4 flex flex-col gap-3 px-2">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-neutral-800 text-white font-bold flex items-center justify-center text-xs border border-neutral-700 uppercase">
+                        <div class="w-9 h-9 rounded-full bg-neutral-800 text-white font-bold flex items-center justify-center text-xs border border-neutral-700 uppercase shrink-0">
                             {{ substr(Auth::user()->name, 0, 2) }}
                         </div>
                         <div class="flex flex-col truncate">
@@ -70,8 +84,26 @@
                 </div>
             </aside>
 
-            <main class="flex-1 bg-[#0c0c0c] p-8 overflow-y-auto h-full">
-                @yield('content')
+            <!-- 💻 CONTENEDOR DE CONTENIDO (Se añade un header móvil superior con flex-col) -->
+            <main class="flex-1 bg-[#0c0c0c] flex flex-col min-w-0 h-full overflow-hidden">
+                
+                <!-- 🍔 Encabezado superior exclusivo para móviles (Oculto en computadoras) -->
+                <header class="h-14 border-b border-neutral-900 flex items-center justify-between px-4 bg-[#141414] shrink-0 md:hidden z-20">
+                    <div class="flex items-center gap-2 text-brand-neon font-black tracking-wider text-xs uppercase">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        Iron Admin
+                    </div>
+                    <button @click="openSidebar = !openSidebar" class="text-gray-400 hover:text-white transition focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </header>
+
+                <!-- Área de contenido con scroll independiente y padding adaptativo -->
+                <div class="p-4 sm:p-8 flex-1 overflow-y-auto h-full">
+                    @yield('content')
+                </div>
             </main>
 
         </div>
