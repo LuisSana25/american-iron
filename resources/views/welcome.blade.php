@@ -44,17 +44,17 @@
             <span class="text-brand-neon font-black text-xs tracking-widest uppercase bg-brand-neon/10 border border-brand-neon/30 px-3 py-1 rounded-full">
                 Fase Inicial Abierta
             </span>
-            <h1 class="text-5xl md:text-7xl font-extrabold text-white uppercase tracking-tighter leading-none">
+            <h1 class="text-4xl md:text-7xl font-extrabold text-white uppercase tracking-tighter leading-none">
                 Transforma tu cuerpo <br>en <span class="text-brand-neon">90 días.</span>
             </h1>
-            <p class="text-gray-400 max-w-xl mx-auto text-sm md:text-base leading-relaxed">
+            <p class="text-gray-400 max-w-xl mx-auto text-xs md:text-base leading-relaxed">
                 Entrena en las instalaciones más completas de Santa Ana. Maquinaria premium, zona de coworking integrada y ambiente de alto nivel. Un paso. Sin excusas.
             </p>
             <div class="pt-4 flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/register" class="bg-brand-neon hover:bg-[#b3e600] text-black font-black text-sm uppercase tracking-wide px-8 py-3.5 rounded-xl transition shadow-lg shadow-brand-neon/10">
+                <a href="/register" class="bg-brand-neon hover:bg-[#b3e600] text-black font-black text-sm uppercase tracking-wide px-8 py-3.5 rounded-xl transition shadow-lg shadow-brand-neon/10 text-center">
                     Comienza tu Evaluación de 90 Días
                 </a>
-                <a href="#membresias" class="bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-sm px-8 py-3.5 rounded-xl transition border border-neutral-800">
+                <a href="#membresias" class="bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-sm px-8 py-3.5 rounded-xl transition border border-neutral-800 text-center">
                     Ver Paquetes
                 </a>
             </div>
@@ -88,46 +88,74 @@
         </div>
     </section>
 
+    <!-- 💳 SECCIÓN DE MEMBRESÍAS CONECTADA CON MARIADB -->
     <section id="membresias" class="py-24 bg-[#050505] border-t border-neutral-950">
         <div class="max-w-7xl mx-auto px-6">
             <div class="text-center max-w-2xl mx-auto mb-16">
-                <h2 class="text-3xl font-black uppercase tracking-tight text-white mb-2">65+ Paquetes de Entrenamiento</h2>
+                <h2 class="text-3xl font-black uppercase tracking-tight text-white mb-2">Paquetes de Entrenamiento</h2>
                 <p class="text-sm text-gray-500">Elige el pase ideal para desatar tu potencial de hierro.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                <div class="bg-[#141414] border border-neutral-900 p-6 rounded-2xl flex flex-col justify-between">
-                    <div>
-                        <h4 class="text-md font-bold text-white mb-4">Inscripción</h4>
-                        <div class="text-4xl font-black mb-6 text-white">$20<span class="text-xs text-gray-500 font-medium">/único</span></div>
-                        <p class="text-xs text-gray-400 leading-relaxed">Pago único de ingreso para registrar tu perfil digital en el sistema y otorgar accesos.</p>
-                    </div>
-                    <a href="/register" class="mt-8 block w-full text-center bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition">Inscribirme</a>
-                </div>
+            <!-- Grid Responsivo Dinámico -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                @foreach($plans as $plan)
+                    <div class="bg-[#141414] p-6 rounded-2xl flex flex-col justify-between relative {{ $plan->name == 'Iron Mensual' ? 'border-2 border-brand-neon shadow-2xl shadow-brand-neon/5' : 'border border-neutral-900' }}">
+                        
+                        @if($plan->name == 'Iron Mensual')
+                            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-neon text-black text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full">Recomendado</div>
+                        @endif
 
-                <div class="bg-[#141414] border-2 border-brand-neon p-6 rounded-2xl flex flex-col justify-between relative shadow-2xl shadow-brand-neon/5">
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-neon text-black text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full">Recomendado</div>
-                    <div>
-                        <h4 class="text-md font-bold text-white mb-4">Iron Mensual</h4>
-                        <div class="text-4xl font-black mb-6 text-brand-neon">$25<span class="text-xs text-gray-500 font-medium">/mes</span></div>
-                        <ul class="text-xs text-gray-400 space-y-2">
-                            <li>✓ Acceso total al gimnasio y pesas</li>
-                            <li>✓ Uso de vestidores y regaderas</li>
-                            <li>✓ Zona Coworking integrada</li>
-                            <li>✓ Conexión WiFi Gratis de alta velocidad</li>
-                        </ul>
-                    </div>
-                    <a href="/register" class="mt-8 block w-full text-center bg-brand-neon hover:bg-[#b3e600] text-black font-black py-3 rounded-xl text-xs uppercase tracking-wider transition">Obtener Pase Mensual</a>
-                </div>
+                        <div>
+                            <h4 class="text-md font-bold text-white mb-4">{{ $plan->name }}</h4>
+                            
+                            <div class="text-4xl font-black mb-6 {{ $plan->name == 'Iron Mensual' ? 'text-brand-neon' : 'text-white' }}">
+                                ${{ number_format($plan->price, 2) }}
+                                <span class="text-xs text-gray-500 font-medium">
+                                    @if(Str::contains(Str::lower($plan->name), 'inscrip'))
+                                        /único
+                                    @elseif(Str::contains(Str::lower($plan->name), 'mensual'))
+                                        /mes
+                                    @elseif(Str::contains(Str::lower($plan->name), 'trimestral'))
+                                        /3 meses
+                                    @else
+                                        /{{ $plan->duration_days }} días
+                                    @endif
+                                </span>
+                            </div>
 
-                <div class="bg-[#141414] border border-neutral-900 p-6 rounded-2xl flex flex-col justify-between">
-                    <div>
-                        <h4 class="text-md font-bold text-white mb-4">Iron Trimestral</h4>
-                        <div class="text-4xl font-black mb-6 text-white">$60<span class="text-xs text-gray-500 font-medium">/3 meses</span></div>
-                        <p class="text-xs text-gray-400 leading-relaxed">Ahorra en tu mensualidad asegurando tu trimestre de disciplina continuo congelando hasta 7 días por imprevistos.</p>
+                            <!-- Desgloses Dinámicos según el tipo de Plan en MariaDB -->
+                            @if(Str::contains(Str::lower($plan->name), 'inscrip'))
+                                <p class="text-xs text-gray-400 leading-relaxed">Pago único de ingreso para registrar tu perfil digital en el sistema y otorgar accesos automáticos.</p>
+                            @elseif(Str::contains(Str::lower($plan->name), 'mensual'))
+                                <ul class="text-xs text-gray-400 space-y-2">
+                                    <li>✓ Acceso total al gimnasio y pesas</li>
+                                    <li>✓ Uso de vestidores y regaderas</li>
+                                    <li>✓ Zona Coworking integrada</li>
+                                    <li>✓ Conexión WiFi Gratis de alta velocidad</li>
+                                </ul>
+                            @elseif(Str::contains(Str::lower($plan->name), 'trimestral'))
+                                <p class="text-xs text-gray-400 leading-relaxed">Ahorra en tu mensualidad asegurando tu trimestre de disciplina continuo. Opción de congelar hasta 7 días por imprevistos.</p>
+                            @else
+                                <ul class="text-xs text-gray-400 space-y-2">
+                                    <li>✓ Acceso completo a maquinaria premium</li>
+                                    <li>✓ Zona de Coworking de alta velocidad</li>
+                                    <li>✓ Ingreso mediante escáner digital</li>
+                                </ul>
+                            @endif
+                        </div>
+
+                        <!-- Botón Dinámico hacia el Registro -->
+                        <a href="/register" class="mt-8 block w-full text-center py-3 rounded-xl text-xs uppercase tracking-wider transition font-bold {{ $plan->name == 'Iron Mensual' ? 'bg-brand-neon hover:bg-[#b3e600] text-black font-black' : 'bg-neutral-900 hover:bg-neutral-800 text-white' }}">
+                            @if(Str::contains(Str::lower($plan->name), 'inscrip'))
+                                Inscribirme
+                            @elseif(Str::contains(Str::lower($plan->name), 'mensual'))
+                                Obtener Pase Mensual
+                            @else
+                                Comprar {{ $plan->name }}
+                            @endif
+                        </a>
                     </div>
-                    <a href="/register" class="mt-8 block w-full text-center bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition">Comprar Trimestre</a>
-                </div>
+                @endforeach
             </div>
         </div>
     </section>

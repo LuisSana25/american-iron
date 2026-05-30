@@ -6,8 +6,11 @@ use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    // Traemos todos los planes activos de la base de datos
+    $plans = \App\Models\Plan::all(); 
+    return view('welcome', compact('plans')); // Cambia 'welcome' por el nombre exacto de tu archivo Blade
 });
+
 
 // Catálogo de planes (Acceso público)
 Route::get('/plans', function () {
