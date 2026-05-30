@@ -144,52 +144,51 @@ class AdminController extends Controller
     }
 
    public function storeMember(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255', // Removemos 'unique:users' para permitir renovaciones en mostrador
-            'phone' => 'required|string|max:20',
-            'plan_id' => 'required|exists:plans,id',
-            'payment_method' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255', 
+        'phone' => 'required|string|max:20',
+        'plan_id' => 'required|exists:plans,id',
+        'payment_method' => 'required|string',
+        'pos_reference' => 'required_if:payment_method,tarjeta|nullable|string', // Evaluamos la referencia si es tarjeta
+    ]);
 
+    // 🚀 INICIAR TRANSACCIÓN: Protección total para MariaDB
+    \Illuminate\Support\Facades\DB::beginTransaction();
+
+    try {
         // 1. BUSCADOR INTELIGENTE DE ATLETAS (Upsert)
-        // Buscamos si el correo ya está registrado en el sistema
         $user = User::where('email', $request->email)->first();
 
         if ($user) {
-            // Si el atleta ya existe, actualizamos sus datos de contacto por si cambiaron
             $user->update([
                 'name' => $request->name,
                 'phone' => $request->phone,
             ]);
         } else {
-            // Si es un cliente completamente nuevo, le creamos su cuenta de acceso base
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'role' => 'member',
-                'password' => Hash::make('IronPass123!'),
+                'password' => \Illuminate\Support\Facades\Hash::make('IronPass123!'),
             ]);
         }
 
-        $plan = Plan::find($request->plan_id);
+        $plan = Plan::findOrFail($request->plan_id);
 
-        // 2. CONTROL DE VIGENCIA IMPERMEABLE: ¿RENOVACIÓN O MATRÍCULA NUEVA?
-        // Buscamos si el usuario ya cuenta con un registro previo de suscripción
+        // 2. CONTROL DE VIGENCIA IMPERMEABLE
         $subscription = Subscription::where('user_id', $user->id)->latest()->first();
 
         if ($subscription) {
-            // RENOVACIÓN REAL: Modificamos su registro existente evitando filas duplicadas en MariaDB
             $subscription->update([
                 'plan_id' => $plan->id,
                 'starts_at' => now()->toDateString(),
                 'expires_at' => now()->addDays($plan->duration_days)->toDateString(),
-                'status' => 'active', // Revierte el estado de 'expired' a 'active' inmediatamente
+                'status' => 'active', 
             ]);
         } else {
-            // MATRÍCULA NUEVA: Si el usuario jamás ha tenido un plan, se inicializa su primera fila
             $subscription = Subscription::create([
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
@@ -199,21 +198,42 @@ class AdminController extends Controller
             ]);
         }
 
-        // Mapeo del método de pago para respetar el ENUM de tu DB
+        // Mapeo del método de pago seguro
         $dbPaymentMethod = $request->payment_method === 'tarjeta' ? 'pos' : 'cash';
 
-        // 3. REGISTRO EN EL LIBRO CONTABLE (Siempre se genera una nueva fila de pago por la nueva plata recibida)
+        // 🚨 SOLUCIÓN AL EFECTO UNIQUE: Volvemos la cadena completamente dinámica
+        // agregando la marca de tiempo (time) y el ID del usuario involucrado.
+        $uniqueTxId = $request->payment_method === 'tarjeta' 
+            ? 'POS-' . ($request->pos_reference ?? time()) . '-' . $user->id
+            : 'CASH-' . time() . '-' . $user->id;
+
+        // 3. REGISTRO EN EL LIBRO CONTABLE
         Payment::create([
             'user_id' => $user->id,
             'subscription_id' => $subscription->id,
             'amount' => $plan->price,
             'payment_method' => $dbPaymentMethod, 
-            'wompi_transaction_id' => $request->payment_method === 'tarjeta' ? ($request->pos_reference ?? 'POS-MANUAL') : 'CAJA_EFECTIVO',
+            'wompi_transaction_id' => $uniqueTxId, // ID único garantizado para la DB
             'status' => 'approved',
         ]);
 
+        // Si todo el flujo se ejecutó sin errores, guardamos los datos firmemente
+        \Illuminate\Support\Facades\DB::commit();
+
         return redirect()->route('admin.members')->with('success', 'Membresía actualizada y cobro asentado con éxito en MariaDB.');
+
+    } catch (\Exception $e) {
+        // Si una sola línea falló, cancelamos todo el avance para evitar duplicados basura
+        \Illuminate\Support\Facades\DB::rollBack();
+        
+        \Illuminate\Support\Facades\Log::error('Error en storeMember Admin: ' . $e->getMessage());
+        
+        // Retornamos a la vista anterior inyectando el error exacto que arroja la base de datos
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Falla al asentar cobro: ' . $e->getMessage());
     }
+}
 
     
     /**
